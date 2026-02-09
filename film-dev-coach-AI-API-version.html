@@ -1,0 +1,2035 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Film Dev Coach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-tertiary: #1c1c1c;
+      --bg-card: #1a1a1a;
+      --accent-orange: #ff6b35;
+      --accent-yellow: #f7b731;
+      --accent-green: #26de81;
+      --accent-blue: #4b7bec;
+      --text-primary: #f5f5f5;
+      --text-secondary: #a0a0a0;
+      --text-muted: #6b6b6b;
+      --border: #2a2a2a;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 48px rgba(0, 0, 0, 0.6);
+      --focus-ring: 0 0 0 3px rgba(255, 107, 53, 0.3);
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      scroll-behavior: smooth;
+    }
+
+    /* Optimize for MacBook Retina display */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      body {
+        -webkit-font-smoothing: subpixel-antialiased;
+      }
+    }
+
+    /* Animated background gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.03) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(247, 183, 49, 0.02) 0%, transparent 50%);
+      animation: bgShift 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bgShift {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-5%, -5%); }
+    }
+
+    /* Improved header - COMPACT for single-screen view */
+    header {
+      position: sticky;
+      top: 0;
+      padding: 0.875rem 2rem;
+      background: linear-gradient(180deg, rgba(20, 20, 20, 0.95) 0%, rgba(20, 20, 20, 0.85) 100%);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-orange) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      max-width: 700px;
+      line-height: 1.4;
+    }
+
+    .subtitle strong {
+      color: var(--accent-orange);
+      font-weight: 600;
+    }
+
+    main {
+      position: relative;
+      padding: 1rem 1.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      z-index: 1;
+      /* Compact for single-screen view */
+    }
+
+    /* Optimized for MacBook Air 13" - SINGLE SCREEN, NO SCROLL */
+    .grid {
+      display: grid;
+      gap: 1.25rem;
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    /* Two-column layout for MacBook Air - everything on one screen */
+    @media (min-width: 1024px) {
+      .grid {
+        grid-template-columns: 1.4fr 0.6fr;
+        gap: 1.5rem;
+        align-items: stretch;
+      }
+    }
+
+    /* Larger screens */
+    @media (min-width: 1440px) {
+      .grid {
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 2rem;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem;
+      box-shadow: var(--shadow);
+      animation: cardFadeIn 0.6s ease-out backwards;
+      transition: border-color 0.3s ease;
+      height: fit-content;
+    }
+
+    /* Compact cards for single-screen view */
+    @media (min-width: 1024px) {
+      .card {
+        padding: 1.25rem;
+      }
+      
+      .timer-card {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
+    .card:hover {
+      border-color: rgba(255, 107, 53, 0.3);
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    @keyframes cardFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Timer Card - improved visual feedback */
+    .timer-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
+      border: 1px solid #2a2a2a;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .timer-card.running {
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 30px rgba(255, 107, 53, 0.15);
+    }
+
+    .timer-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 107, 53, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Timer display - LARGE but fits on single screen */
+    .timer-display {
+      font-family: 'DM Mono', monospace;
+      font-size: 4rem;
+      font-weight: 500;
+      text-align: center;
+      padding: 1rem 0.5rem;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-orange) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.12em;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+      position: relative;
+      z-index: 1;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (min-width: 1024px) {
+      .timer-display {
+        font-size: 4.5rem;
+        padding: 1.25rem 0.5rem;
+        margin-bottom: 1rem;
+      }
+    }
+
+    /* Step info section improvements - optimized spacing for MacBook Air */
+    .step-info {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.625rem;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    @media (min-width: 1024px) {
+      .step-title {
+        font-size: 1.375rem;
+      }
+    }
+
+    /* Compact metadata pills */
+    .meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.625rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.75rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      cursor: default;
+    }
+
+    @media (min-width: 1024px) {
+      .pill {
+        font-size: 0.813rem;
+        padding: 0.5rem 0.875rem;
+      }
+    }
+
+    .pill:hover {
+      background: var(--bg-secondary);
+      transform: translateY(-1px);
+    }
+
+    .pill-temp:hover {
+      border-color: var(--accent-orange);
+      color: var(--accent-orange);
+    }
+
+    .pill-action:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    .pill-agitation:hover {
+      border-color: var(--accent-yellow);
+      color: var(--accent-yellow);
+    }
+
+    .pill-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pill-temp .pill-icon { background: var(--accent-orange); }
+    .pill-action .pill-icon { background: var(--accent-blue); }
+    .pill-agitation .pill-icon { background: var(--accent-yellow); }
+
+    /* Compact hint styling */
+    .step-hint {
+      font-size: 0.813rem;
+      color: var(--text-primary);
+      line-height: 1.5;
+      margin-bottom: 0.625rem;
+      padding: 0.625rem 0.875rem;
+      background: rgba(255, 107, 53, 0.12);
+      border-left: 4px solid var(--accent-orange);
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    @media (min-width: 1024px) {
+      .step-hint {
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+      }
+    }
+
+    /* Instructions area - COMPACT, no scrolling */
+    .step-instructions {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      overflow-y: visible;
+    }
+
+    @media (min-width: 1024px) {
+      .step-instructions {
+        font-size: 0.813rem;
+        line-height: 1.7;
+        padding: 0.875rem 1.125rem;
+      }
+    }
+
+
+    /* Form Elements - compact */
+    label {
+      display: block;
+      font-size: 0.688rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-size: 0.813rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    @media (min-width: 1024px) {
+      label {
+        font-size: 0.75rem;
+      }
+      
+      select, input, textarea {
+        font-size: 0.875rem;
+      }
+    }
+
+    select:hover, input:hover, textarea:hover {
+      border-color: rgba(255, 107, 53, 0.4);
+    }
+
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-orange);
+      box-shadow: var(--focus-ring);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0a0' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+    }
+
+    /* Compact checkbox styling */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      padding: 0.375rem;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+    }
+
+    .checkbox-row:hover {
+      background: rgba(255, 107, 53, 0.05);
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent-orange);
+    }
+
+    .checkbox-row label {
+      margin: 0;
+      cursor: pointer;
+      text-transform: none;
+      letter-spacing: normal;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    @media (min-width: 1024px) {
+      .checkbox-row label {
+        font-size: 0.813rem;
+      }
+    }
+
+    /* Compact button group */
+    .btn-group {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 0.625rem;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (min-width: 1024px) {
+      .btn-group {
+        gap: 0.625rem;
+      }
+    }
+
+    /* Compact buttons for single-screen layout */
+    .btn {
+      padding: 0.625rem 1rem;
+      font-size: 0.813rem;
+      font-weight: 600;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 1024px) {
+      .btn {
+        font-size: 0.875rem;
+        padding: 0.75rem 1.125rem;
+      }
+    }
+
+    .btn:hover {
+      background: var(--bg-tertiary);
+      border-color: rgba(255, 107, 53, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:focus {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Primary action button - compact but visible */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-orange) 0%, #ff8555 100%);
+      border-color: var(--accent-orange);
+      color: white;
+      font-weight: 700;
+      font-size: 0.938rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.625rem;
+    }
+
+    @media (min-width: 1024px) {
+      .btn-primary {
+        font-size: 1rem;
+        padding: 0.875rem 1.5rem;
+      }
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #ff7f4d 0%, #ff9566 100%);
+      border-color: #ff7f4d;
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    /* Secondary button styles */
+    .btn-secondary {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(75, 123, 236, 0.1);
+      border-color: var(--accent-blue);
+    }
+
+    /* Danger button */
+    .btn-danger {
+      border-color: #e74c3c;
+      color: #e74c3c;
+    }
+
+    .btn-danger:hover {
+      background: rgba(231, 76, 60, 0.1);
+      border-color: #e74c3c;
+    }
+
+    /* Small utility buttons */
+    .btn-sm {
+      padding: 0.625rem 1rem;
+      font-size: 0.813rem;
+    }
+
+    /* Compact navigation buttons */
+    .nav-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 0.625rem;
+    }
+
+    @media (min-width: 1024px) {
+      .nav-buttons {
+        gap: 0.625rem;
+      }
+    }
+
+    /* Compact timer controls */
+    .timer-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 0.625rem;
+    }
+
+    @media (min-width: 1024px) {
+      .timer-controls {
+        gap: 0.625rem;
+      }
+    }
+
+    /* Improved toast notifications */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
+      color: var(--text-primary);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      border: 2px solid var(--accent-orange);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      font-weight: 600;
+      font-size: 0.938rem;
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      max-width: 90%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Progress indicator - compact */
+    .timer-progress {
+      height: 3px;
+      background: var(--bg-tertiary);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 0.625rem;
+      position: relative;
+    }
+
+    .timer-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-yellow));
+      width: 0%;
+      transition: width 1s linear;
+      border-radius: 2px;
+    }
+
+    /* Step counter badge - compact */
+    .step-counter {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.875rem;
+      background: rgba(255, 107, 53, 0.15);
+      border: 2px solid rgba(255, 107, 53, 0.4);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-orange);
+      margin-bottom: 0.625rem;
+    }
+
+    @media (min-width: 1024px) {
+      .step-counter {
+        font-size: 0.813rem;
+        padding: 0.5rem 1rem;
+      }
+    }
+
+    /* Compact settings card */
+    .settings-card {
+      margin-top: 0;
+    }
+
+    .settings-section {
+      margin-bottom: 1rem;
+    }
+
+    .settings-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .settings-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.375rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media (min-width: 1024px) {
+      .settings-title {
+        font-size: 0.938rem;
+      }
+    }
+
+    /* Keyboard shortcuts hint - COMPACT but visible */
+    .keyboard-hint {
+      margin-top: 1rem;
+      padding: 0.75rem 0.875rem;
+      background: linear-gradient(135deg, rgba(75, 123, 236, 0.1) 0%, rgba(75, 123, 236, 0.05) 100%);
+      border: 2px solid rgba(75, 123, 236, 0.4);
+      border-radius: 10px;
+      font-size: 0.75rem;
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    @media (min-width: 1024px) {
+      .keyboard-hint {
+        font-size: 0.813rem;
+        padding: 0.875rem 1rem;
+      }
+    }
+
+    .keyboard-hint strong {
+      color: var(--accent-blue);
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    .keyboard-hint .hint-title {
+      display: block;
+      color: var(--accent-blue);
+      font-weight: 700;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    @media (min-width: 1024px) {
+      .keyboard-hint strong {
+        font-size: 0.938rem;
+      }
+      
+      .keyboard-hint .hint-title {
+        font-size: 0.938rem;
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      main {
+        padding: 1rem;
+      }
+
+      .card {
+        padding: 1.25rem;
+      }
+
+      .timer-display {
+        font-size: 3rem;
+        padding: 1rem 0.5rem;
+      }
+
+      .step-title {
+        font-size: 1.25rem;
+      }
+
+      .btn-group {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .timer-controls {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Loading state */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Improved focus styles for accessibility */
+    *:focus-visible {
+      outline: 2px solid var(--accent-orange);
+      outline-offset: 2px;
+    }
+
+    /* Better button states */
+    .btn.active {
+      background: rgba(255, 107, 53, 0.15);
+      border-color: var(--accent-orange);
+      color: var(--accent-orange);
+    }
+
+    /* AI Assistant Styles */
+    .ai-assistant-toggle {
+      max-width: 1600px;
+      margin: 0 auto 1rem;
+      text-align: center;
+    }
+
+    .btn-ai {
+      background: linear-gradient(135deg, rgba(75, 123, 236, 0.2) 0%, rgba(75, 123, 236, 0.1) 100%);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      font-size: 0.875rem;
+      padding: 0.625rem 1.25rem;
+    }
+
+    .btn-ai:hover {
+      background: linear-gradient(135deg, rgba(75, 123, 236, 0.3) 0%, rgba(75, 123, 236, 0.2) 100%);
+      border-color: var(--accent-blue);
+    }
+
+    .ai-chat-card {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      max-height: 500px;
+    }
+
+    .ai-mode-indicator {
+      padding: 0.75rem 1rem;
+      background: rgba(38, 222, 129, 0.1);
+      border: 2px solid var(--accent-green);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      font-size: 0.813rem;
+      text-align: center;
+    }
+
+    .ai-mode-indicator.locked {
+      background: rgba(231, 76, 60, 0.1);
+      border-color: #e74c3c;
+      color: #e74c3c;
+    }
+
+    .ai-mode-indicator strong {
+      color: var(--accent-green);
+    }
+
+    .ai-mode-indicator.locked strong {
+      color: #e74c3c;
+    }
+
+    .ai-messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      max-height: 300px;
+    }
+
+    .ai-message {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.75rem;
+      border-radius: 10px;
+      font-size: 0.813rem;
+      line-height: 1.6;
+    }
+
+    .ai-message-user {
+      background: rgba(255, 107, 53, 0.1);
+      border-left: 3px solid var(--accent-orange);
+      margin-left: 2rem;
+    }
+
+    .ai-message-assistant {
+      background: rgba(75, 123, 236, 0.1);
+      border-left: 3px solid var(--accent-blue);
+      margin-right: 2rem;
+    }
+
+    .ai-message strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ai-input-area {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 0.5rem;
+      align-items: end;
+    }
+
+    .ai-input-area textarea {
+      resize: vertical;
+      min-height: 60px;
+      font-family: inherit;
+    }
+
+    .ai-input-area button {
+      height: fit-content;
+    }
+
+    .btn-voice {
+      background: rgba(247, 183, 49, 0.1);
+      border-color: var(--accent-yellow);
+      color: var(--accent-yellow);
+      font-size: 1.25rem;
+      padding: 0.75rem 1rem;
+      min-width: 50px;
+    }
+
+    .btn-voice:hover {
+      background: rgba(247, 183, 49, 0.2);
+      border-color: var(--accent-yellow);
+    }
+
+    .btn-voice.listening {
+      background: var(--accent-yellow);
+      color: var(--bg-primary);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .btn-speak {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.25rem 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-speak:hover {
+      background: rgba(75, 123, 236, 0.1);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    .btn-speak.speaking {
+      background: var(--accent-blue);
+      color: white;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .ai-messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .ai-messages::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+    }
+
+    .ai-messages::-webkit-scrollbar-thumb {
+      background: var(--accent-blue);
+      border-radius: 10px;
+    }
+
+    .ai-thinking {
+      opacity: 0.6;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Film Dev Coach</h1>
+      <p class="subtitle">
+        A step-by-step timer for C-41 color negative film development.
+        Temperature is <strong>critical</strong>. Follow each step precisely.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <!-- AI Assistant Toggle -->
+    <div class="ai-assistant-toggle">
+      <button class="btn btn-ai" id="toggle-ai">
+        🤖 AI Assistant: <span id="ai-status">Ready</span>
+      </button>
+    </div>
+
+    <div class="grid">
+      <!-- Timer Card -->
+      <div class="card timer-card" id="timer-card">
+        <div class="timer-display" id="timer">00:00</div>
+        
+        <div class="timer-progress">
+          <div class="timer-progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div class="step-info">
+          <div class="step-counter" id="step-counter">
+            Step <span id="current-step">1</span> of <span id="total-steps">10</span>
+          </div>
+          
+          <h2 class="step-title" id="step-title">—</h2>
+          
+          <div class="meta-pills">
+            <div class="pill pill-temp" id="meta1">
+              <span class="pill-icon"></span>
+              <span>Temp: —</span>
+            </div>
+            <div class="pill pill-action" id="meta2">
+              <span class="pill-icon"></span>
+              <span>Action: —</span>
+            </div>
+            <div class="pill pill-agitation" id="meta3">
+              <span class="pill-icon"></span>
+              <span>Agitation: —</span>
+            </div>
+          </div>
+          
+          <div class="step-hint" id="hint"></div>
+          
+          <pre class="step-instructions" id="instructions"></pre>
+
+          <div class="timer-controls">
+            <button class="btn btn-sm" id="minus10">-10s</button>
+            <button class="btn btn-sm" id="plus10">+10s</button>
+          </div>
+
+          <button class="btn btn-primary" id="start-pause">Start</button>
+          
+          <div class="nav-buttons">
+            <button class="btn btn-secondary" id="back">← Previous</button>
+            <button class="btn btn-secondary" id="next">Next →</button>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn" id="reset-step">Reset Step</button>
+            <button class="btn btn-danger" id="panic">🚨 Panic</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Card -->
+      <div class="card settings-card">
+        <div class="settings-section">
+          <h3 class="settings-title">Process Selection</h3>
+          <label for="preset">Development Process</label>
+          <select id="preset" aria-label="Select development process"></select>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-title">Audio Settings</h3>
+          <div class="checkbox-row">
+            <input type="checkbox" id="voice" checked aria-label="Enable voice announcements">
+            <label for="voice">Voice Announcements</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="beep" checked aria-label="Enable sound alerts">
+            <label for="beep">Sound Alerts</label>
+          </div>
+        </div>
+
+        <div class="keyboard-hint">
+          <span class="hint-title">🎹 Hands-Free Controls</span>
+          <strong>Space</strong> — Start/Pause Timer<br>
+          <strong>N</strong> — Next Step<br>
+          <strong>B</strong> — Back Step<br>
+          <strong>R</strong> — Reset Current Step<br>
+          <br>
+          <em style="color: var(--accent-orange); font-size: 0.938rem;">
+            💡 Keep your gloves on! Control everything with keyboard.
+          </em>
+        </div>
+      </div>
+
+      <!-- AI Assistant Chat (hidden by default) -->
+      <div class="card ai-chat-card" id="ai-chat" style="display: none;">
+        <div class="ai-mode-indicator" id="ai-mode">
+          🟢 <strong>SAFE MODE:</strong> Pre-Development Assistant
+        </div>
+        
+        <div class="ai-messages" id="ai-messages">
+          <div class="ai-message ai-message-assistant">
+            <strong>AI Assistant:</strong> Hi! I'm here to help you prepare for film development. I can answer questions about the process, equipment, and troubleshooting. 
+            <br><br>
+            ⚠️ <strong>Important:</strong> Once you start the timer, I switch to LOCKED mode and can only read instructions verbatim - no modifications or substitutions.
+            <br><br>
+            What would you like to know?
+          </div>
+        </div>
+        
+        <div class="ai-input-area">
+          <textarea 
+            id="ai-input" 
+            placeholder="Ask about film development..."
+            rows="2"
+          ></textarea>
+          <button class="btn btn-voice" id="ai-voice" title="Voice input">🎤</button>
+          <button class="btn btn-primary" id="ai-send">Send</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+// ╔════════════════════════════════════════════════════════════════╗
+// ║                                                                ║
+// ║              🔑 PASTE YOUR API KEY HERE 🔑                    ║
+// ║                                                                ║
+// ║  1. Get key from: https://console.anthropic.com               ║
+// ║  2. Replace the text below with your key                      ║
+// ║  3. Change "false" to "true" on the next line                 ║
+// ║  4. Save this file                                            ║
+// ║                                                                ║
+// ╚════════════════════════════════════════════════════════════════╝
+
+const ANTHROPIC_API_KEY = 'YOUR_API_KEY_HERE';  // ← Paste your key here (between the quotes)
+const API_AVAILABLE = false;                     // ← Change this to: true
+
+// ═══════════════════════════════════════════════════════════════
+// That's it! Save the file and reload in your browser.
+// ═══════════════════════════════════════════════════════════════
+
+(() => {
+  // ===== PRESETS =====
+  const PRESETS = {
+    "chem-prep": {
+      name: "1. Chemical Preparation",
+      steps: [
+        {
+          title: "Step 1: Mixing the Developer",
+          durationSec: 0,
+          meta: { temp: "~100°F (38°C)", action: "Mix & dissolve", agitation: "None" },
+          hint: "Follow steps carefully. Avoid cross-contamination.",
+          instructions: `1. Measure 600ml of water (~100°F) into a beaker
+2. While stirring, slowly add the developer powder
+3. Stir continuously until fully dissolved
+4. Top off with water to reach 1,000ml total
+5. Stir again to ensure everything is completely dissolved
+6. Use a funnel to transfer the solution into a storage bottle
+7. Gently squeeze the accordion bottle to raise the liquid level to the top, then cap it
+8. Label immediately: "Developer" or "Dev"
+
+🧼 CRITICAL: Clean everything thoroughly (beaker, stirrer, funnel) before moving on.
+Cross-contamination—especially into the developer—can ruin an entire batch.`
+        },
+        {
+          title: "Step 2: Mixing the Blix (Part A)",
+          durationSec: 0,
+          meta: { temp: "~100°F (38°C)", action: "Mix Part A", agitation: "None" },
+          hint: "Part A produces a noticeable smell. Ensure good ventilation.",
+          instructions: `1. Measure 600ml of water into the beaker
+2. While stirring, slowly add Blix Part A
+   ⚠️ This step produces a noticeable smell—make sure ventilation is good
+3. Pour the mixture into the storage bottle WITHOUT adding more water yet
+
+DO NOT top off with water yet. Proceed to Part B next.`
+        },
+        {
+          title: "Step 2: Mixing the Blix (Part B)",
+          durationSec: 300,
+          meta: { temp: "Room temp", action: "Add Part B & wait", agitation: "None" },
+          hint: "Chemical reaction will occur. Wait 5 minutes.",
+          instructions: `4. Add Blix Part B directly into the same bottle (with Part A)
+5. Let the bottle sit for 5 minutes to allow the chemical reaction to occur
+   ⚠️ This is a normal endothermic reaction
+
+Timer will count down 5 minutes for you.`,
+          agitation: null
+        },
+        {
+          title: "Step 2: Mixing the Blix (Final)",
+          durationSec: 0,
+          meta: { temp: "Room temp", action: "Mix & finalize", agitation: "None" },
+          hint: "Mix thoroughly and top off to 1,000ml.",
+          instructions: `6. After 5 minutes, pour the solution back and forth between the bottle and beaker a few times to mix thoroughly
+7. Top off with water to reach 1,000ml total
+8. Transfer back into the bottle
+9. Squeeze the bottle to remove air and cap it
+10. Label immediately: "Blix"
+
+✅ Both chemicals are now ready!`
+        },
+        {
+          title: "Chemistry Ready - Storage",
+          durationSec: 0,
+          meta: { temp: "Room temp OK", action: "Store safely", agitation: "None" },
+          hint: "Room temp storage is fine. You'll warm them before use.",
+          instructions: `Both chemicals are now ready:
+• DEVELOPER (bottle 1)
+• BLIX (bottle 2)
+
+Store at room temperature.
+Before film development, you'll warm them to 102°F (39°C).
+
+Next: Load film and proceed to development process.`
+        }
+      ]
+    },
+    "c41-unicolor": {
+      name: "2. C-41 Development (Unicolor Kit)",
+      steps: [
+        {
+          title: "Warm Developer to 102°F (39°C)",
+          durationSec: 0,
+          meta: { temp: "102°F (39°C)", action: "Warm bottle", agitation: "None" },
+          hint: "Use warm water bath. Check with thermometer.",
+          instructions: `Place DEVELOPER bottle in warm water bath.
+Target: 102°F (39°C) ±0.5°F
+
+Check with thermometer.
+This temp is CRITICAL for proper development.
+
+TIP: Use a large bowl or sink with warm water.
+Adjust water temp as needed.`
+        },
+        {
+          title: "Warm Blix to 100-105°F (38-41°C)",
+          durationSec: 0,
+          meta: { temp: "100-105°F", action: "Warm bottle", agitation: "None" },
+          hint: "Blix is more forgiving, but keep it warm.",
+          instructions: `Place BLIX bottle in warm water bath.
+Target: 100-105°F (38-41°C)
+
+Blix temp is less critical than Developer,
+but keep it in the warm range.
+
+Check both bottles are at temp before starting.`
+        },
+        {
+          title: "DEVELOPER",
+          durationSec: 210,
+          meta: { temp: "102°F (39°C)", action: "Pour in", agitation: "Every 30s" },
+          hint: "Start timer IMMEDIATELY when Developer touches film.",
+          instructions: `1. Pour Developer into tank (lights ON or OFF)
+2. Start timer IMMEDIATELY at first contact
+3. Tap tank to remove air bubbles
+4. Put on lid and inversion cap
+
+AGITATION SCHEDULE:
+• Initial: 10-15 inversions (first 30 sec)
+• Then: 3-4 inversions every 30 seconds
+
+⚠️ TEMPERATURE CRITICAL: Must be 102°F ±1°F
+⚠️ Start timer at FIRST CONTACT with film
+
+At end: Pour Developer back into bottle (reusable 2-4 times)`,
+          agitation: {
+            mode: "every",
+            everySec: 30,
+            firstMessage: "Initial agitation: 10-15 inversions now.",
+            message: "Agitate: 3-4 inversions."
+          }
+        },
+        {
+          title: "BLIX",
+          durationSec: 480,
+          meta: { temp: "100-105°F", action: "Pour in", agitation: "Every 30s" },
+          hint: "Blix removes silver and fixes the image. Lights can be ON.",
+          instructions: `1. Pour out Developer (back into bottle if reusing)
+2. Pour Blix into tank
+3. Start timer
+4. Lights can be ON now (film is stable)
+
+AGITATION SCHEDULE:
+• Initial: 10-15 inversions (first 30 sec)
+• Then: 3-4 inversions every 30 seconds
+
+At end: Pour Blix back into bottle (reusable many times)
+
+TIP: Blix is forgiving. Longer is OK if needed.`,
+          agitation: {
+            mode: "every",
+            everySec: 30,
+            firstMessage: "Initial agitation: 10-15 inversions now.",
+            message: "Agitate: 3-4 inversions."
+          }
+        },
+        {
+          title: "WASH (Running Water)",
+          durationSec: 180,
+          meta: { temp: "Room temp OK", action: "Running water", agitation: "Continuous flow" },
+          hint: "Remove all chemistry. Fresh water continuously.",
+          instructions: `1. Pour out Blix (back into bottle)
+2. Remove tank lid (film is stable, lights OK)
+3. Run water continuously over film for 3 minutes
+   OR fill/dump tank 10-15 times with fresh water
+
+Goal: Remove all Blix residue.
+
+TIP: Running water is best. If not available,
+fill tank with fresh water, agitate, dump. Repeat 10-15 times.`,
+          agitation: null
+        },
+        {
+          title: "KODAK PHOTO-FLO (Optional)",
+          durationSec: 60,
+          meta: { temp: "Room temp", action: "Pour in", agitation: "None" },
+          hint: "Photo-Flo helps film dry evenly and prevents water spots. Optional but recommended.",
+          instructions: `If you have Kodak Photo-Flo:
+1. Dilute Photo-Flo (200:1 ratio - about 5ml in 1000ml water)
+2. Pour into tank
+3. Let sit for 1 minute (no agitation needed)
+4. Pour out (do NOT rinse after)
+
+If no Photo-Flo:
+Skip this step. Film will be fine.
+
+Proceed to drying.`,
+          agitation: null
+        },
+        {
+          title: "Remove Film and Hang to Dry",
+          durationSec: 0,
+          meta: { temp: "Room temp", action: "Hang dry", agitation: "None" },
+          hint: "Use film clips. Let air dry. Do NOT use heat.",
+          instructions: `1. Remove film from reel
+2. Attach film clip to top
+3. Attach weight clip to bottom (or another film clip)
+4. Hang in dust-free area
+5. Let air dry (2-4 hours)
+
+⚠️ Do NOT use heat or hair dryer
+⚠️ Avoid touching emulsion side
+
+Once dry: Cut into strips and store in sleeves.
+
+DONE! Your film is developed.`
+        }
+      ]
+    }
+  };
+
+  // ===== DOM REFS =====
+  const elTimer = document.getElementById("timer");
+  const elTitle = document.getElementById("step-title");
+  const elMeta1 = document.getElementById("meta1");
+  const elMeta2 = document.getElementById("meta2");
+  const elMeta3 = document.getElementById("meta3");
+  const elHint = document.getElementById("hint");
+  const elInstr = document.getElementById("instructions");
+  const elStartPause = document.getElementById("start-pause");
+  const elBack = document.getElementById("back");
+  const elNext = document.getElementById("next");
+  const elResetStep = document.getElementById("reset-step");
+  const elMinus10 = document.getElementById("minus10");
+  const elPlus10 = document.getElementById("plus10");
+  const elPanic = document.getElementById("panic");
+  const elPreset = document.getElementById("preset");
+  const elVoice = document.getElementById("voice");
+  const elBeep = document.getElementById("beep");
+  const elToast = document.getElementById("toast");
+  const elTimerCard = document.getElementById("timer-card");
+  const elProgressBar = document.getElementById("progress-bar");
+  const elCurrentStep = document.getElementById("current-step");
+  const elTotalSteps = document.getElementById("total-steps");
+  
+  // AI Assistant elements
+  const elToggleAI = document.getElementById("toggle-ai");
+  const elAIChat = document.getElementById("ai-chat");
+  const elAIMessages = document.getElementById("ai-messages");
+  const elAIInput = document.getElementById("ai-input");
+  const elAISend = document.getElementById("ai-send");
+  const elAIVoice = document.getElementById("ai-voice");
+  const elAIMode = document.getElementById("ai-mode");
+  const elAIStatus = document.getElementById("ai-status");
+
+  // ===== STATE =====
+  let currentPresetKey = "c41-unicolor";
+  let recipe = clone(PRESETS[currentPresetKey]);
+  let stepIndex = 0;
+  let remainingSec = 0;
+  let running = false;
+  let tickInterval = null;
+  let agitationInterval = null;
+  let didFirstAgit = false;
+  let lastAgitAt = null;
+  
+  // AI Assistant state
+  let aiChatVisible = false;
+  let aiLocked = false;
+  let recognition = null;
+  let isListening = false;
+
+  function clone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  // ===== AI ASSISTANT FUNCTIONS =====
+  
+  function initVoiceRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      elAIVoice.disabled = true;
+      elAIVoice.title = "Voice input not supported in this browser";
+      return;
+    }
+    
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    recognition.onstart = () => {
+      isListening = true;
+      elAIVoice.classList.add('listening');
+      elAIVoice.textContent = '🔴';
+      toast("🎤 Listening... Speak your question", 2000);
+    };
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      elAIInput.value = transcript;
+      toast("✓ Got it: " + transcript.substring(0, 50) + "...", 2000);
+    };
+    
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      if (event.error === 'no-speech') {
+        toast("❌ No speech detected. Try again.", 2000);
+      } else if (event.error === 'not-allowed') {
+        toast("❌ Microphone access denied. Check browser permissions.", 3000);
+      } else {
+        toast("❌ Voice input error: " + event.error, 2000);
+      }
+    };
+    
+    recognition.onend = () => {
+      isListening = false;
+      elAIVoice.classList.remove('listening');
+      elAIVoice.textContent = '🎤';
+    };
+  }
+  
+  // Make this function global so it can be called from onclick
+  window.speakAIMessage = function(button) {
+    // Get the message content (strip HTML tags for clean speech)
+    const messageDiv = button.closest('.ai-message');
+    const content = messageDiv.querySelector('div > div').textContent
+      .replace('AI Assistant:', '')
+      .trim();
+    
+    // Stop any current speech
+    window.speechSynthesis.cancel();
+    
+    // If already speaking this message, stop
+    if (button.classList.contains('speaking')) {
+      button.classList.remove('speaking');
+      button.textContent = '🔊';
+      return;
+    }
+    
+    // Mark as speaking
+    button.classList.add('speaking');
+    button.textContent = '🔇';
+    
+    // Create utterance
+    const utterance = new SpeechSynthesisUtterance(content);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    utterance.onend = () => {
+      button.classList.remove('speaking');
+      button.textContent = '🔊';
+    };
+    
+    utterance.onerror = () => {
+      button.classList.remove('speaking');
+      button.textContent = '🔊';
+      toast("❌ Speech error. Try again.", 2000);
+    };
+    
+    window.speechSynthesis.speak(utterance);
+  };
+  
+  function toggleVoiceInput() {
+    if (!recognition) {
+      toast("❌ Voice input not available in this browser", 2000);
+      return;
+    }
+    
+    if (isListening) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  }
+  
+  function toggleAIChat() {
+    aiChatVisible = !aiChatVisible;
+    elAIChat.style.display = aiChatVisible ? 'flex' : 'none';
+    elAIStatus.textContent = aiChatVisible ? 'Active' : 'Ready';
+  }
+
+  function updateAIMode() {
+    if (running) {
+      aiLocked = true;
+      elAIMode.innerHTML = '🔴 <strong>LOCKED MODE:</strong> Timer Active - Instructions Only';
+      elAIMode.classList.add('locked');
+      elAIInput.disabled = false; // Can still ask questions, but responses are limited
+      elAIInput.placeholder = "Ask about current step only...";
+    } else {
+      aiLocked = false;
+      elAIMode.innerHTML = '🟢 <strong>SAFE MODE:</strong> Pre-Development Assistant';
+      elAIMode.classList.remove('locked');
+      elAIInput.disabled = false;
+      elAIInput.placeholder = "Ask about film development...";
+    }
+  }
+
+  function addAIMessage(content, isUser = false) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `ai-message ai-message-${isUser ? 'user' : 'assistant'}`;
+    
+    if (isUser) {
+      msgDiv.innerHTML = `<strong>You:</strong> ${content}`;
+    } else {
+      // Add speaker button for AI messages
+      msgDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
+          <div style="flex: 1;">
+            <strong>AI Assistant:</strong> ${content}
+          </div>
+          <button class="btn-speak" onclick="speakAIMessage(this)" title="Read aloud">🔊</button>
+        </div>
+      `;
+    }
+    
+    elAIMessages.appendChild(msgDiv);
+    elAIMessages.scrollTop = elAIMessages.scrollHeight;
+  }
+
+  async function sendToAI(userMessage) {
+    if (!API_AVAILABLE) {
+      addAIMessage(`⚠️ <strong>AI Assistant Not Enabled</strong><br><br>
+        To use the AI assistant, you need to:<br><br>
+        <strong>1. Get an Anthropic API key:</strong><br>
+        • Go to <a href="https://console.anthropic.com" target="_blank" style="color: var(--accent-blue); text-decoration: underline;">console.anthropic.com</a><br>
+        • Sign up (it's free to start)<br>
+        • Create an API key<br><br>
+        
+        <strong>2. Edit this HTML file:</strong><br>
+        • Right-click this file → Open with → Text Editor<br>
+        • Find the line: <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">const ANTHROPIC_API_KEY = 'YOUR_API_KEY_HERE';</code><br>
+        • Replace YOUR_API_KEY_HERE with your actual API key<br>
+        • Change <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">const API_AVAILABLE = false;</code> to <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">true</code><br>
+        • Save the file<br><br>
+        
+        <strong>3. Run with a local server (see guide below)</strong><br><br>
+        
+        The AI assistant will then work! Your API key stays on your computer - it's only used to talk to Anthropic's servers.<br><br>
+        
+        <em style="color: var(--text-secondary);">Without AI, you can still use all the timer and step features normally.</em>`);
+      return;
+    }
+
+    addAIMessage(userMessage, true);
+    
+    // Add thinking indicator
+    const thinkingDiv = document.createElement('div');
+    thinkingDiv.className = 'ai-message ai-message-assistant ai-thinking';
+    thinkingDiv.innerHTML = '<strong>AI Assistant:</strong> Thinking...';
+    elAIMessages.appendChild(thinkingDiv);
+    elAIMessages.scrollTop = elAIMessages.scrollHeight;
+
+    try {
+      const systemPrompt = buildSystemPrompt();
+      
+      // Using a CORS proxy for local file access
+      // For production, host this file on a web server
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1024,
+          messages: [
+            {
+              role: 'user',
+              content: userMessage
+            }
+          ],
+          system: systemPrompt
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      const aiResponse = data.content[0].text;
+
+      elAIMessages.removeChild(thinkingDiv);
+      addAIMessage(aiResponse);
+
+    } catch (error) {
+      elAIMessages.removeChild(thinkingDiv);
+      
+      if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+        addAIMessage(`❌ <strong>Browser Security Block (CORS Error)</strong><br><br>
+          Your browser is blocking the API call because you're opening this file directly from your computer.<br><br>
+          
+          <strong>Solution: Run a local web server</strong><br><br>
+          
+          <strong>Option 1 - Python (Easiest):</strong><br>
+          1. Open Terminal/Command Prompt in the folder with this file<br>
+          2. Run: <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">python -m http.server 8000</code><br>
+          3. Open browser to: <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">http://localhost:8000</code><br><br>
+          
+          <strong>Option 2 - VS Code:</strong><br>
+          1. Install "Live Server" extension<br>
+          2. Right-click this file → "Open with Live Server"<br><br>
+          
+          <strong>Option 3 - Node.js:</strong><br>
+          1. Install: <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">npm install -g http-server</code><br>
+          2. Run: <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">http-server</code><br><br>
+          
+          <em style="color: var(--text-secondary);">The timer and all other features work fine without the AI assistant!</em>`);
+      } else {
+        addAIMessage(`❌ <strong>Error:</strong> ${error.message}<br><br>
+          Please check:<br>
+          • Your API key is correct<br>
+          • You have internet connection<br>
+          • Your Anthropic account has credits<br><br>
+          Error details: <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">${error.message}</code>`);
+      }
+      
+      console.error('AI API Error:', error);
+    }
+  }
+
+  function buildSystemPrompt() {
+    const currentStep = recipe.steps[stepIndex];
+    const processName = recipe.name || 'Unknown';
+    
+    let systemPrompt = `You are a film development assistant helping users with C-41 color negative film processing.
+
+CRITICAL SAFETY RULES:
+${aiLocked ? `
+🔴 LOCKED MODE - Timer is currently running!
+- You can ONLY explain what the current step means
+- You CANNOT suggest any modifications, substitutions, or changes
+- You CANNOT answer "what if" or "can I" questions about deviating from the recipe
+- If asked about changes, respond: "I cannot advise modifications while the timer is running. Follow the recipe exactly."
+` : `
+🟢 SAFE MODE - No timer running
+- You can explain concepts, troubleshoot past issues, and answer educational questions
+- You can help with equipment and preparation questions
+- You CANNOT suggest recipe modifications, chemical substitutions, or process changes
+- For any "can I substitute" or "what if I change" questions, respond: "Film development is too precise for substitutions. Follow the recipe exactly or consult your kit instructions."
+`}
+
+CURRENT CONTEXT:
+- Process: ${processName}
+- Current Step: ${stepIndex + 1} of ${recipe.steps.length}
+- Step Name: ${currentStep.title}
+- Timer Status: ${running ? 'RUNNING' : 'Not running'}
+${running ? `- Time Remaining: ${formatTime(remainingSec)}` : ''}
+
+RECIPE OVERVIEW:
+${recipe.steps.map((s, i) => `${i + 1}. ${s.title} - ${s.durationSec > 0 ? formatTime(s.durationSec) : 'No timer'}`).join('\n')}
+
+AVAILABLE INFORMATION:
+- Temperature requirements for each step
+- Agitation schedules
+- Chemical safety
+- Common mistakes and how to avoid them
+- Troubleshooting past development issues
+- Equipment recommendations
+
+Keep responses concise (2-3 paragraphs max). Be direct and practical. Never suggest deviating from the recipe.`;
+
+    return systemPrompt;
+  }
+
+  function checkDangerousQuestion(question) {
+    const dangerousKeywords = [
+      'substitute', 'instead of', 'can i use', 'replace',
+      'what if i', 'is it okay to', 'can i skip',
+      'should i add', 'extend time', 'reduce time',
+      'shorter', 'longer', 'hotter', 'cooler',
+      'don\'t have', 'out of', 'forgot'
+    ];
+    
+    const lowerQ = question.toLowerCase();
+    return dangerousKeywords.some(keyword => lowerQ.includes(keyword));
+  }
+
+  // ===== HELPERS =====
+  function formatTime(sec) {
+    const m = String(Math.floor(sec / 60)).padStart(2, "0");
+    const s = String(sec % 60).padStart(2, "0");
+    return `${m}:${s}`;
+  }
+
+  function toast(msg, ms=2200) {
+    elToast.textContent = msg;
+    elToast.classList.add('show');
+    clearTimeout(elToast._t);
+    elToast._t = setTimeout(() => { elToast.classList.remove('show'); }, ms);
+  }
+
+  function speak(msg) {
+    if (!elVoice.checked) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(msg);
+      u.rate = 1.02;
+      u.pitch = 1.0;
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  function beep(freq=880, durMs=120) {
+    if (!elBeep.checked) return;
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioContext();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = freq;
+      o.connect(g);
+      g.connect(ctx.destination);
+      g.gain.value = 0.08;
+      o.start();
+      setTimeout(() => { o.stop(); ctx.close(); }, durMs);
+    } catch (e) {}
+  }
+
+  function stopTimers() {
+    running = false;
+    elStartPause.textContent = "Start";
+    elTimerCard.classList.remove('running');
+    if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
+    if (agitationInterval) { clearInterval(agitationInterval); agitationInterval = null; }
+    updateAIMode(); // Update AI assistant mode
+  }
+
+  function updateProgress() {
+    const step = recipe.steps[stepIndex];
+    if (!step || step.durationSec <= 0) {
+      elProgressBar.style.width = '0%';
+      return;
+    }
+    const progress = ((step.durationSec - remainingSec) / step.durationSec) * 100;
+    elProgressBar.style.width = Math.max(0, Math.min(100, progress)) + '%';
+  }
+
+  function renderTimer() {
+    const step = recipe.steps[stepIndex];
+    if (!step) return;
+    if (step.durationSec <= 0) {
+      elTimer.textContent = "—";
+    } else {
+      elTimer.textContent = formatTime(remainingSec);
+    }
+    updateProgress();
+  }
+
+  function renderStep() {
+    const step = recipe.steps[stepIndex];
+    if (!step) return;
+    
+    elTitle.textContent = step.title || "—";
+    elCurrentStep.textContent = stepIndex + 1;
+    elTotalSteps.textContent = recipe.steps.length;
+    
+    const tempText = (step.meta && step.meta.temp) ? step.meta.temp : "—";
+    const actionText = (step.meta && step.meta.action) ? step.meta.action : "—";
+    const agitText = (step.meta && step.meta.agitation) ? step.meta.agitation : "—";
+    
+    elMeta1.innerHTML = `<span class="pill-icon"></span><span>Temp: ${tempText}</span>`;
+    elMeta2.innerHTML = `<span class="pill-icon"></span><span>Action: ${actionText}</span>`;
+    elMeta3.innerHTML = `<span class="pill-icon"></span><span>Agitation: ${agitText}</span>`;
+    
+    elHint.textContent = step.hint || "";
+    elHint.style.display = step.hint ? 'block' : 'none';
+    elInstr.textContent = step.instructions || "";
+    renderTimer();
+  }
+
+  function setStep(idx, {reset=false} = {}) {
+    stopTimers();
+    stepIndex = Math.max(0, Math.min(idx, recipe.steps.length - 1));
+    const step = recipe.steps[stepIndex];
+    remainingSec = step.durationSec || 0;
+    didFirstAgit = false;
+    lastAgitAt = null;
+    renderStep();
+    if (reset) toast(`Step: ${step.title}`, 1200);
+    speak(`Step: ${step.title}`);
+  }
+
+  function scheduleAgitation() {
+    const step = recipe.steps[stepIndex];
+    if (!step || !step.agitation || step.agitation.mode !== "every") return;
+
+    if (!didFirstAgit && step.agitation.firstMessage) {
+      didFirstAgit = true;
+      setTimeout(() => {
+        if (!running) return;
+        toast(step.agitation.firstMessage, 2000);
+        beep(740, 120);
+        speak(step.agitation.firstMessage);
+      }, 200);
+    }
+
+    const every = Math.max(5, Number(step.agitation.everySec || 30));
+    lastAgitAt = Date.now();
+
+    agitationInterval = setInterval(() => {
+      if (!running) return;
+      const elapsed = Math.floor((Date.now() - lastAgitAt) / 1000);
+      if (elapsed >= every) {
+        lastAgitAt = Date.now();
+        const msg = step.agitation.message || "Agitate now.";
+        toast(msg, 1400);
+        beep(880, 120);
+        speak(msg);
+      }
+    }, 250);
+  }
+
+  function startTimers() {
+    const step = recipe.steps[stepIndex];
+    if (!step) return;
+    if ((step.durationSec || 0) <= 0) {
+      toast("This step has no timer.");
+      beep(500, 80);
+      speak("No timer for this step.");
+      return;
+    }
+    if (running) return;
+    running = true;
+    elStartPause.textContent = "Pause";
+    elTimerCard.classList.add('running');
+    updateAIMode(); // Lock AI assistant when timer starts
+
+    tickInterval = setInterval(() => {
+      if (!running) return;
+      remainingSec -= 1;
+      renderTimer();
+
+      if (remainingSec === 10) { 
+        beep(660, 120); 
+        toast("⏰ 10 seconds left", 900); 
+      }
+      if (remainingSec <= 0) {
+        stopTimers();
+        renderTimer();
+        toast("✅ Step complete — move to next step!", 2500);
+        beep(1000, 250); 
+        setTimeout(() => beep(1000, 250), 300);
+        speak("Step complete. Move to the next step.");
+      }
+    }, 1000);
+
+    scheduleAgitation();
+  }
+
+  function toggleStartPause() {
+    if (!running) {
+      startTimers();
+    } else {
+      stopTimers();
+      toast("⏸ Paused", 900);
+      speak("Paused");
+    }
+  }
+
+  function applyPreset(key) {
+    currentPresetKey = key;
+    recipe = clone(PRESETS[currentPresetKey]);
+    setStep(0, {reset:true});
+  }
+
+  function adjustTime(delta) {
+    const step = recipe.steps[stepIndex];
+    if (!step || (step.durationSec || 0) <= 0) return;
+    remainingSec = Math.max(0, remainingSec + delta);
+    renderTimer();
+    toast(`${delta > 0 ? '+' : ''}${delta}s`, 800);
+  }
+
+  function panic() {
+    stopTimers();
+    const currentProcess = recipe.name || "";
+    
+    let panicText = `🚨 PANIC CHECKLIST\n\n`;
+    
+    // Different checklist depending on which process is running
+    if (currentProcess.includes("Chemical Preparation")) {
+      panicText += `CHEMISTRY MIXING SAFETY:
+
+⚠️ Are you wearing safety glasses and gloves?
+⚠️ Is the pitcher completely clean?
+⚠️ Did you rinse between Developer and Blix?
+⚠️ Is water temperature correct (~100°F)?
+⚠️ Are you stirring while adding powder?
+⚠️ Did you add the right chemical packet?
+⚠️ Are you measuring to exactly 1000ml?
+⚠️ Is the work area stable and safe?
+
+If mixing BLIX Part B:
+• Solution getting cold is NORMAL (endothermic)
+• Wait for reaction to complete (~5 min)
+
+If unsure: STOP. Re-read the step instructions.`;
+    } else {
+      // Film development checklist
+      panicText += `FILM DEVELOPMENT SAFETY:
+
+CHEMISTRY CHECK:
+⚠️ Is Developer at 102°F (39°C) NOW? (CRITICAL!)
+⚠️ Is Blix at 102°F (39°C) NOW? (CRITICAL!)
+⚠️ Did you warm chemistry from room temp?
+⚠️ Did you use FRESH chemistry?
+⚠️ Are bottles labeled correctly?
+⚠️ Did you pour the RIGHT chemical?
+
+NOTE: Room temp storage is FINE. 
+Chemistry must be 102°F only DURING development.
+
+PROCESS CHECK:
+⚠️ Are you on the correct step?
+⚠️ Did you pour IN or OUT correctly?
+⚠️ Is the tank sealed properly?
+⚠️ Are you using correct agitation?
+⚠️ Did you start timer at first contact?
+
+FILM SAFETY:
+⚠️ Is film safe from light?
+⚠️ Is tank lid on during dark steps?
+⚠️ Did you load film correctly on reel?
+
+COMMON MISTAKES:
+• Wrong temperature = ruined film
+• Developer too warm = overdeveloped (dense)
+• Developer too cool = underdeveloped (thin)
+• Wrong chemical = INSTANT RUIN
+• Forgot to agitate = uneven development
+• Light leak = fogged film
+
+If temperature is wrong:
+STOP. Adjust before proceeding.
+
+If you poured wrong chemical:
+Cannot undo. Film may be compromised.`;
+    }
+    
+    panicText += `\n\nTake a breath. Verify each item.
+If seriously wrong, better to stop than continue.`;
+    
+    toast("🚨 PANIC: Timer paused. Check checklist below.", 3000);
+    speak("Paused. Check temperature and step order.");
+    beep(400, 140); 
+    setTimeout(() => beep(400, 140), 200);
+    elInstr.textContent = panicText;
+  }
+
+  // Populate presets
+  for (const key of Object.keys(PRESETS)) {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = PRESETS[key].name || key;
+    elPreset.appendChild(opt);
+  }
+
+  // Wire events
+  elPreset.addEventListener("change", () => applyPreset(elPreset.value));
+
+  elBack.addEventListener("click", () => setStep(stepIndex - 1, {reset:true}));
+  elNext.addEventListener("click", () => setStep(stepIndex + 1, {reset:true}));
+  elResetStep.addEventListener("click", () => setStep(stepIndex, {reset:true}));
+  elStartPause.addEventListener("click", toggleStartPause);
+  elMinus10.addEventListener("click", () => adjustTime(-10));
+  elPlus10.addEventListener("click", () => adjustTime(+10));
+  elPanic.addEventListener("click", panic);
+
+  // Keyboard shortcuts
+  window.addEventListener("keydown", (e) => {
+    if (e.target && (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT" || e.target.tagName === "SELECT")) return;
+    if (e.code === "Space") { e.preventDefault(); toggleStartPause(); }
+    if (e.key === "n" || e.key === "N") setStep(stepIndex + 1, {reset:true});
+    if (e.key === "b" || e.key === "B") setStep(stepIndex - 1, {reset:true});
+    if (e.key === "r" || e.key === "R") setStep(stepIndex, {reset:true});
+  });
+
+  // AI Assistant events
+  elToggleAI.addEventListener("click", toggleAIChat);
+  
+  elAIVoice.addEventListener("click", toggleVoiceInput);
+  
+  elAISend.addEventListener("click", () => {
+    const message = elAIInput.value.trim();
+    if (!message) return;
+    
+    elAIInput.value = '';
+    sendToAI(message);
+  });
+  
+  elAIInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      elAISend.click();
+    }
+  });
+
+  // Init
+  applyPreset(currentPresetKey);
+  updateAIMode(); // Initialize AI assistant mode
+  initVoiceRecognition(); // Initialize voice input
+})();
+</script>
+</body>
+</html>

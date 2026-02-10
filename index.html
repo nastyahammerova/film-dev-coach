@@ -989,8 +989,11 @@
     <!-- AI Assistant Toggle -->
     <div class="ai-assistant-toggle">
       <button class="btn btn-ai" id="toggle-ai">
-        🤖 AI Assistant: <span id="ai-status">Ready</span>
+        🤖 AI Assistant: <span id="ai-status">Checking...</span>
       </button>
+      <div id="ai-disconnected-hint" style="display:none; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; text-align: center;">
+        ⚙️ No API key configured — <a href="AI_SETUP_GUIDE.md" target="_blank" style="color: var(--accent-orange); text-decoration: none;">see setup guide</a>
+      </div>
     </div>
 
     <div class="grid">
@@ -1028,6 +1031,23 @@
           
           <pre class="step-instructions" id="instructions"></pre>
 
+          <!-- Next Step Preview -->
+          <div id="next-step-preview" style="
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent-blue);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: none;
+          ">
+            <span style="color: var(--accent-blue); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">⏭ Up Next</span>
+            <div id="next-step-title" style="color: var(--text-primary); font-weight: 600; margin-top: 0.2rem;"></div>
+            <div id="next-step-meta" style="margin-top: 0.2rem; color: var(--text-muted); font-size: 0.8rem;"></div>
+          </div>
+
           <div class="timer-controls">
             <button class="btn btn-sm" id="minus10">-10s</button>
             <button class="btn btn-sm" id="plus10">+10s</button>
@@ -1058,7 +1078,7 @@
         <div class="settings-section">
           <h3 class="settings-title">Audio Settings</h3>
           <div class="checkbox-row">
-            <input type="checkbox" id="voice" checked aria-label="Enable voice announcements">
+            <input type="checkbox" id="voice" aria-label="Enable voice announcements">
             <label for="voice">Voice Announcements</label>
           </div>
           <div class="checkbox-row">
@@ -1077,11 +1097,6 @@
           <em style="color: var(--accent-orange); font-size: 0.938rem;">
             💡 Keep your gloves on! Control everything with keyboard.
           </em>
-          <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);">
-            <button class="btn" id="toggle-voice" style="width: 100%; font-size: 0.875rem;">
-              🔇 Voice: OFF
-            </button>
-          </div>
         </div>
       </div>
 
@@ -1505,7 +1520,11 @@ DONE! Your film is developed.`
   function toggleAIChat() {
     aiChatVisible = !aiChatVisible;
     elAIChat.style.display = aiChatVisible ? 'flex' : 'none';
-    elAIStatus.textContent = aiChatVisible ? 'Active' : 'Ready';
+    if (API_AVAILABLE) {
+      elAIStatus.textContent = aiChatVisible ? 'Active' : 'Ready';
+    } else {
+      elAIStatus.textContent = 'Disconnected';
+    }
   }
 
   function updateAIMode() {
@@ -1743,8 +1762,7 @@ Keep responses concise (2-3 paragraphs max). Be direct and practical. Never sugg
   }
 
   function speak(msg) {
-    if (!voiceEnabled) return; // Check if voice is enabled
-    if (!elVoice.checked) return;
+    if (!elVoice.checked) return; // Checkbox controls voice
     try {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(msg);
@@ -1825,6 +1843,24 @@ Keep responses concise (2-3 paragraphs max). Be direct and practical. Never sugg
     elHint.textContent = step.hint || "";
     elHint.style.display = step.hint ? 'block' : 'none';
     elInstr.textContent = step.instructions || "";
+
+    // Next step preview
+    const nextStep = recipe.steps[stepIndex + 1];
+    const elNextPreview = document.getElementById('next-step-preview');
+    const elNextTitle = document.getElementById('next-step-title');
+    const elNextMeta = document.getElementById('next-step-meta');
+    if (nextStep && elNextPreview) {
+      elNextTitle.textContent = nextStep.title || "—";
+      const nextTemp = (nextStep.meta && nextStep.meta.temp) ? nextStep.meta.temp : null;
+      const nextAction = (nextStep.meta && nextStep.meta.action) ? nextStep.meta.action : null;
+      const nextDuration = nextStep.durationSec ? Math.floor(nextStep.durationSec / 60) + ":" + String(nextStep.durationSec % 60).padStart(2,'0') : null;
+      const parts = [nextDuration, nextTemp, nextAction].filter(Boolean);
+      elNextMeta.textContent = parts.join(' · ');
+      elNextPreview.style.display = 'block';
+    } else if (elNextPreview) {
+      elNextPreview.style.display = 'none';
+    }
+
     renderTimer();
   }
 
@@ -2028,12 +2064,6 @@ If seriously wrong, better to stop than continue.`;
   elPlus10.addEventListener("click", () => adjustTime(+10));
   elPanic.addEventListener("click", panic);
   
-  // Voice toggle
-  const elToggleVoiceBtn = document.getElementById('toggle-voice');
-  if (elToggleVoiceBtn) {
-    elToggleVoiceBtn.addEventListener("click", toggleVoice);
-  }
-
   // Keyboard shortcuts
   window.addEventListener("keydown", (e) => {
     if (e.target && (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT" || e.target.tagName === "SELECT")) return;
@@ -2065,8 +2095,23 @@ If seriously wrong, better to stop than continue.`;
 
   // Init
   applyPreset(currentPresetKey);
-  updateAIMode(); // Initialize AI assistant mode
-  initVoiceRecognition(); // Initialize voice input
+  updateAIMode();
+  initVoiceRecognition();
+
+  // Set AI button status based on API availability
+  const elAIDisconnectedHint = document.getElementById('ai-disconnected-hint');
+  if (API_AVAILABLE) {
+    elAIStatus.textContent = 'Ready';
+    elToggleAI.style.borderColor = 'var(--accent-green)';
+    elToggleAI.style.color = 'var(--accent-green)';
+    if (elAIDisconnectedHint) elAIDisconnectedHint.style.display = 'none';
+  } else {
+    elAIStatus.textContent = 'Disconnected';
+    elToggleAI.style.borderColor = 'var(--text-muted)';
+    elToggleAI.style.color = 'var(--text-muted)';
+    elToggleAI.style.opacity = '0.7';
+    if (elAIDisconnectedHint) elAIDisconnectedHint.style.display = 'block';
+  }
 })();
 </script>
 </body>

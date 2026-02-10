@@ -1077,6 +1077,11 @@
           <em style="color: var(--accent-orange); font-size: 0.938rem;">
             💡 Keep your gloves on! Control everything with keyboard.
           </em>
+          <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);">
+            <button class="btn" id="toggle-voice" style="width: 100%; font-size: 0.875rem;">
+              🔇 Voice: OFF
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1207,82 +1212,79 @@ Next: Load film and proceed to development process.`
       ]
     },
     "c41-unicolor": {
-      name: "2. C-41 Development (Unicolor Kit)",
+      name: "2. C-41 Development (Cinestill Kit)",
       steps: [
         {
-          title: "Warm Developer to 102°F (39°C)",
-          durationSec: 0,
-          meta: { temp: "102°F (39°C)", action: "Warm bottle", agitation: "None" },
-          hint: "Use warm water bath. Check with thermometer.",
-          instructions: `Place DEVELOPER bottle in warm water bath.
-Target: 102°F (39°C) ±0.5°F
+          title: "Pre-Rinse (Tank Warm-Up)",
+          durationSec: 60,
+          meta: { temp: "102°F (39°C)", action: "Pre-warm tank", agitation: "None" },
+          hint: "Warms the tank to prevent temperature shock.",
+          instructions: `1. Pour ~500ml of 102°F water into the tank
+2. Let sit for 1 minute
+3. Dump completely into the sink
+4. Beaker is no longer needed
 
-Check with thermometer.
-This temp is CRITICAL for proper development.
-
-TIP: Use a large bowl or sink with warm water.
-Adjust water temp as needed.`
-        },
-        {
-          title: "Warm Blix to 100-105°F (38-41°C)",
-          durationSec: 0,
-          meta: { temp: "100-105°F", action: "Warm bottle", agitation: "None" },
-          hint: "Blix is more forgiving, but keep it warm.",
-          instructions: `Place BLIX bottle in warm water bath.
-Target: 100-105°F (38-41°C)
-
-Blix temp is less critical than Developer,
-but keep it in the warm range.
-
-Check both bottles are at temp before starting.`
+⚠️ This prepares the tank and prevents temperature shock to the film.`,
+          agitation: null
         },
         {
           title: "DEVELOPER",
           durationSec: 210,
           meta: { temp: "102°F (39°C)", action: "Pour in", agitation: "Every 30s" },
-          hint: "Start timer IMMEDIATELY when Developer touches film.",
-          instructions: `1. Pour Developer into tank (lights ON or OFF)
-2. Start timer IMMEDIATELY at first contact
-3. Tap tank to remove air bubbles
-4. Put on lid and inversion cap
+          hint: "Start timer IMMEDIATELY when Developer touches film. Continuous agitation first 10 seconds.",
+          instructions: `1. Pour developer in immediately
+2. Agitate continuously for the first 10 seconds
+3. Seal the lid tightly (this will leak if loose)
+4. Start timer IMMEDIATELY
 
 AGITATION SCHEDULE:
-• Initial: 10-15 inversions (first 30 sec)
-• Then: 3-4 inversions every 30 seconds
+• Initial: Continuous agitation for first 10 seconds
+• Then: 4 gentle inversions every 30 seconds
+  - One inversion = flip upside down → twist slightly → return
+  - Avoid shaking or aggressive agitation
+  - You may hold the tank upside down briefly to ensure full coverage
 
 ⚠️ TEMPERATURE CRITICAL: Must be 102°F ±1°F
-⚠️ Start timer at FIRST CONTACT with film
 
-At end: Pour Developer back into bottle (reusable 2-4 times)`,
+At 3:30:
+• Open carefully (gas may release)
+• Dump developer
+• Rinse tank lid if needed`,
           agitation: {
             mode: "every",
             everySec: 30,
-            firstMessage: "Initial agitation: 10-15 inversions now.",
-            message: "Agitate: 3-4 inversions."
+            firstMessage: "Initial agitation: Continuous for 10 seconds now.",
+            message: "Agitate: 4 gentle inversions."
           }
         },
         {
           title: "BLIX",
           durationSec: 480,
           meta: { temp: "100-105°F", action: "Pour in", agitation: "Every 30s" },
-          hint: "Blix removes silver and fixes the image. Lights can be ON.",
-          instructions: `1. Pour out Developer (back into bottle if reusing)
-2. Pour Blix into tank
-3. Start timer
-4. Lights can be ON now (film is stable)
+          hint: "Blix removes silver and fixes the image. Lights can be ON. Vent gas pressure if needed.",
+          instructions: `1. Reset timer (if needed)
+2. Pour Blix into the tank
+3. Agitate for the first few seconds
+4. Seal lid securely
+5. Lights can be ON now (film is stable)
 
 AGITATION SCHEDULE:
-• Initial: 10-15 inversions (first 30 sec)
-• Then: 3-4 inversions every 30 seconds
+• Initial: Agitate for first few seconds
+• Then: 4 inversions every 30 seconds
 
-At end: Pour Blix back into bottle (reusable many times)
+⚠️ Periodically vent gas pressure if the lid starts pushing out
+⚠️ Expect minor drips — this is why gloves matter
 
-TIP: Blix is forgiving. Longer is OK if needed.`,
+WHILE BLIX IS RUNNING:
+• Start running warm water in the sink
+• Adjust faucet so rinse water is ready when Blix finishes
+
+At end: Pour Blix back into bottle (reusable many times)`,
           agitation: {
             mode: "every",
             everySec: 30,
-            firstMessage: "Initial agitation: 10-15 inversions now.",
-            message: "Agitate: 3-4 inversions."
+            firstMessage: "Initial agitation: Agitate for first few seconds now.",
+            message: "Agitate: 4 inversions."
           }
         },
         {
@@ -1390,6 +1392,9 @@ DONE! Your film is developed.`
   let aiLocked = false;
   let recognition = null;
   let isListening = false;
+  
+  // Voice announcements state
+  let voiceEnabled = false; // Disabled by default - user must enable
 
   function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -1718,7 +1723,27 @@ Keep responses concise (2-3 paragraphs max). Be direct and practical. Never sugg
     elToast._t = setTimeout(() => { elToast.classList.remove('show'); }, ms);
   }
 
+  function toggleVoice() {
+    voiceEnabled = !voiceEnabled;
+    const btn = document.getElementById('toggle-voice');
+    if (btn) {
+      btn.textContent = voiceEnabled ? '🔊 Voice: ON' : '🔇 Voice: OFF';
+      btn.style.background = voiceEnabled ? 'rgba(38, 222, 129, 0.15)' : '';
+      btn.style.borderColor = voiceEnabled ? 'var(--accent-green)' : '';
+      btn.style.color = voiceEnabled ? 'var(--accent-green)' : '';
+    }
+    
+    if (voiceEnabled) {
+      toast('✓ Voice announcements enabled', 2000);
+      speak('Voice announcements enabled'); // Test voice
+    } else {
+      toast('✓ Voice announcements disabled', 2000);
+      window.speechSynthesis.cancel(); // Stop any current speech
+    }
+  }
+
   function speak(msg) {
+    if (!voiceEnabled) return; // Check if voice is enabled
     if (!elVoice.checked) return;
     try {
       window.speechSynthesis.cancel();
@@ -1779,6 +1804,11 @@ Keep responses concise (2-3 paragraphs max). Be direct and practical. Never sugg
   function renderStep() {
     const step = recipe.steps[stepIndex];
     if (!step) return;
+    
+    // Update dropdown to match current preset
+    if (elPreset.value !== currentPresetKey) {
+      elPreset.value = currentPresetKey;
+    }
     
     elTitle.textContent = step.title || "—";
     elCurrentStep.textContent = stepIndex + 1;
@@ -1888,9 +1918,11 @@ Keep responses concise (2-3 paragraphs max). Be direct and practical. Never sugg
   }
 
   function applyPreset(key) {
+    stopTimers(); // Stop any running timers first
     currentPresetKey = key;
     recipe = clone(PRESETS[currentPresetKey]);
     setStep(0, {reset:true});
+    updateAIMode(); // Update AI mode after preset change
   }
 
   function adjustTime(delta) {
@@ -1995,6 +2027,12 @@ If seriously wrong, better to stop than continue.`;
   elMinus10.addEventListener("click", () => adjustTime(-10));
   elPlus10.addEventListener("click", () => adjustTime(+10));
   elPanic.addEventListener("click", panic);
+  
+  // Voice toggle
+  const elToggleVoiceBtn = document.getElementById('toggle-voice');
+  if (elToggleVoiceBtn) {
+    elToggleVoiceBtn.addEventListener("click", toggleVoice);
+  }
 
   // Keyboard shortcuts
   window.addEventListener("keydown", (e) => {
